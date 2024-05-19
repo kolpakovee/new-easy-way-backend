@@ -20,7 +20,7 @@ public class NewEasyWayController {
     private final NewEasyWayService newEasyWayService;
 
     @PostMapping("/features")
-    public List<String> getProductFeaturesByPhoto(@RequestParam("file") MultipartFile file) throws IOException, SerpApiSearchException {
+    public ProductCodeResponse getProductFeaturesByPhoto(@RequestParam("file") MultipartFile file) throws IOException, SerpApiSearchException {
         return newEasyWayService.getProductFeaturesByPhoto(file);
     }
 

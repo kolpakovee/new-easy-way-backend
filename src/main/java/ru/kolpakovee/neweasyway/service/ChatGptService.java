@@ -83,6 +83,8 @@ public class ChatGptService {
                 .retrieve()
                 .bodyToMono(String.class);
 
+        System.out.println(response);
+
         return ProductCodeResponse.jsonToProductCodeResponse(response.block());
     }
 

@@ -29,7 +29,7 @@ public class NewEasyWayService {
 
     private final WebClient webClient;
 
-    public List<String> getProductFeaturesByPhoto(MultipartFile photo) throws IOException, SerpApiSearchException {
+    public ProductCodeResponse getProductFeaturesByPhoto(MultipartFile photo) throws IOException, SerpApiSearchException {
         UUID uuid = UUID.randomUUID();
 
         String photoUrl = s3Service.uploadFile(uuid.toString(), photo);
@@ -40,7 +40,7 @@ public class NewEasyWayService {
 
         System.out.printf("Получено %s ссылок из SerpApi\n", links.size());
 
-        return links.stream()
+        List<String> features = links.stream()
                 .map(link -> {
                     String html = webClient.get()
                             .uri(link)
@@ -69,13 +69,27 @@ public class NewEasyWayService {
                 })
                 .limit(limit)
                 .toList();
+
+        StringBuilder message = new StringBuilder("Опередели возможные коды ТН ВЭД по изображению и характеристикам из текста. Верни JSON формата \n{\n" +
+                "  \"codes\": [\n" +
+                "    \"123456\",\n" +
+                "    \"789012\",\n" +
+                "    \"345678\"\n" +
+                "  ]\n" +
+                "}\nХарактеристики:");
+
+        for (var feature : features) {
+            message.append("\n").append(feature);
+        }
+
+        return chatGptService.sendMessageWithImage(message.toString(), photoUrl);
     }
 
     public ProductCodeResponse getProductCodeByPhoto(MultipartFile file) throws IOException {
         UUID uuid = UUID.randomUUID();
 
         String photoUrl = s3Service.uploadFile(uuid.toString(), file);
-        String message = "Опередели возможные коды ТН ВЭД по изображению. Верни JSON формата {\n" +
+        String message = "Опередели возможные коды ТН ВЭД по изображению и характеристикам из текста. Верни JSON формата {\n" +
                 "  \"codes\": [\n" +
                 "    \"123456\",\n" +
                 "    \"789012\",\n" +
